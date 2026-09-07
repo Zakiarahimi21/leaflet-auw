@@ -14,12 +14,68 @@ var map = L.map('map', {
 const floorBounds = [[0, 0], [planHeight, planWidth]];
 
 // 4. Add classroom map image
-const classroomImage = L.imageOverlay('1stfloor.png', floorBounds);
+const classroomImage = L.imageOverlay('first_floor.png', floorBounds);
 classroomImage.addTo(map);
 
+// 5. Load store polygons from PostgreSQL
+fetch('http://localhost:3000/api/map/1')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to load map data');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('✅ PostgreSQL map data loaded:', data);
+        console.log(`🏪 Stores loaded: ${data.features.length}`);
 
+        const storeLayer = L.geoJSON(data, {
+            style: {
+                weight: 2,
+                fillOpacity: 0.25
+            },
+
+            onEachFeature: function (feature, layer) {
+                const p = feature.properties;
+
+                layer.bindPopup(`
+                    <strong>${p.name || 'Unnamed Store'}</strong><br>
+                    Store: ${p.store_number || 'N/A'}<br>
+                    Type: ${p.store_type || 'N/A'}<br>
+                    Brand: ${p.brand || 'N/A'}
+                `);
+            }
+        });
+
+        storeLayer.addTo(map);
+
+        console.log('✅ Store polygons added to Leaflet');
+    })
+    .catch(error => {
+        console.error('❌ Could not load PostgreSQL map:', error);
+    });
 // 5. Fit map to image bounds
 map.fitBounds(floorBounds);
+// Add a legend
+var legend = L.control({position: 'bottomright'});
+legend.onAdd = function(map) {
+    var div = L.DomUtil.create('div', 'info legend');
+    div.style.backgroundColor = 'white';
+    div.style.padding = '10px';
+    div.style.borderRadius = '5px';
+    div.style.boxShadow = '0 0 15px rgba(0,0,0,0.2)';
+    div.innerHTML = `
+        <h4 style="margin:0 0 8px 0;">📍 Legend</h4>
+        <p style="margin:4px 0;">🟦 <span style="color:#4A90D9;">Rooms</span></p>
+        <p style="margin:4px 0;">🚻 Toilets</p>
+        <p style="margin:4px 0;">🛗 Lifts</p>
+        <p style="margin:4px 0;">🔥 Fire Exits</p>
+        <p style="margin:4px 0;">⬆️ Escalators</p>
+    `;
+    return div;
+};
+legend.addTo(map);
+
 
 // 6. Example polygons (replace coords with real ones)
 // Polygon for Room S 33–37
@@ -31,8 +87,8 @@ const s33_37 = L.polygon([
     [803.273303, 497.096067],  // E
     [799.030663, 207.889394]   // F
 ], {
-    color: '#cccccc',
-    fillColor: '#cccccc',
+    color: '#FF6B6B',
+    fillColor: '#FF6B6B',
     fillOpacity: 0.1
 }).addTo(map);
 
@@ -513,11 +569,10 @@ s01.bindPopup("<h3>Room S-01</h3>");
 
 
 // 7. Debug tool: click anywhere to get coordinates
-map.on("click", function (e) {
+/* map.on("click", function (e) {
     console.log(e.latlng);
 });
 
 map.on("click", function (e) {
     alert("Clicked at: " + e.latlng);
-});
-
+}); */

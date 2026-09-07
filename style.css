@@ -1,5 +1,45 @@
-#map {
-    height: 600px;
-    width: 800px;
-    border: 2px solid #333;
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
 }
+
+#map {
+    width: 100%;
+    height: 100vh;
+}
+/* Add to style.css */
+.legend {
+    background-color: white;
+    padding: 12px 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.legend h4 {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+.legend p {
+    margin: 4px 0;
+}
+
+.legend .color-box {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    margin-right: 6px;
+}
+
+.legend .room-color { background-color: #4A90D9; }
+.legend .toilet-color { background-color: #2ECC71; }
+.legend .lift-color { background-color: #F39C12; }
+.legend .fire-color { background-color: #E74C3C; }
