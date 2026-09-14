@@ -72,21 +72,19 @@ app.get('/api/map/:floor', async (req, res) => {
         const result = await client.query(`
             SELECT
                 s.id,
-                s.store_number,
+                s.store_id,
                 s.name,
-                s.store_type,
-                s.is_stall,
-                s.brand,
-                s.products,
-                s.gender,
+                s.type,
+                s.category,
+                s.status,
+                s.geometry_type,
+                s.coordinates,
                 f.floor_number,
-                f.floor_name,
-                ST_AsGeoJSON(s.geom)::json AS geometry
-            FROM public.stores s
-            JOIN public.floors f
+                f.floor_name
+            FROM mall.stores s
+            JOIN mall.floors f
                 ON s.floor_id = f.id
             WHERE f.floor_number = $1
-            AND s.geom IS NOT NULL
         `, [floorNumber]);
 
         const geojson = {
@@ -95,17 +93,18 @@ app.get('/api/map/:floor', async (req, res) => {
                 type: "Feature",
                 properties: {
                     id: store.id,
-                    store_number: store.store_number,
+                    store_id: store.store_id,
                     name: store.name,
-                    store_type: store.store_type,
-                    is_stall: store.is_stall,
-                    brand: store.brand,
-                    products: store.products,
-                    gender: store.gender,
+                    type: store.type,
+                    category: store.category,
+                    status: store.status,
                     floor_number: store.floor_number,
                     floor_name: store.floor_name
                 },
-                geometry: store.geometry
+                geometry: {
+                    type: store.geometry_type,
+                    coordinates: store.coordinates
+                }
             }))
         };
 
@@ -123,7 +122,7 @@ app.get('/api/map/:floor', async (req, res) => {
 // 4. Get all stores with filters
 app.get('/api/stores', async (req, res) => {
 try {
-        const floorNumber = parseInt(req.params.floor);
+    const floorNumber = parseInt(req.query.floor);
 
         if (isNaN(floorNumber)) {
             return res.status(400).json({
@@ -133,12 +132,19 @@ try {
 
         const result = await client.query(`
             SELECT
-                mf.id,
-                mf.floor_id,
-                ST_AsGeoJSON(mf.geom)::json AS geometry
-            FROM public.map_features mf
-            JOIN public.floors f
-                ON mf.floor_id = f.id
+                s.id,
+                s.store_id,
+                s.name,
+                s.type,
+                s.category,
+                s.status,
+                s.geometry_type,
+                s.coordinates,
+                f.floor_number,
+                f.floor_name
+            FROM mall.stores s
+            JOIN mall.floors f
+                ON s.floor_id = f.id
             WHERE f.floor_number = $1
         `, [floorNumber]);
 
@@ -148,9 +154,18 @@ try {
                 type: "Feature",
                 properties: {
                     id: feature.id,
-                    floor_id: feature.floor_id
+                    store_id: feature.store_id,
+                    name: feature.name,
+                    type: feature.type,
+                    category: feature.category,
+                    status: feature.status,
+                    floor_number: feature.floor_number,
+                    floor_name: feature.floor_name
                 },
-                geometry: feature.geometry
+                geometry: {
+                    type: feature.geometry_type,
+                    coordinates: feature.coordinates
+                }
             }))
         };
 
@@ -171,19 +186,9 @@ app.get('/api/stores/:id', async (req, res) => {
         const result = await client.query(`
             SELECT 
                 s.*,
-                f.floor_name,
-                sd.products,
-                sd.brands,
-                sd.hours,
-                sd.contact_phone,
-                sd.contact_email,
-                sd.website,
-                sd.rating,
-                sd.reviews,
-                sd.description
+                f.floor_name
             FROM mall.stores s
             JOIN mall.floors f ON s.floor_id = f.id
-            LEFT JOIN mall.store_details sd ON s.id = sd.store_id
             WHERE s.store_id = $1
         `, [req.params.id]);
         
@@ -211,12 +216,9 @@ app.get('/api/search', async (req, res) => {
         let sql = `
             SELECT 
                 s.*,
-                f.floor_name,
-                sd.rating,
-                sd.reviews
+                f.floor_name
             FROM mall.stores s
             JOIN mall.floors f ON s.floor_id = f.id
-            LEFT JOIN mall.store_details sd ON s.id = sd.store_id
             WHERE 
                 s.name ILIKE $1 OR 
                 s.store_id ILIKE $1 OR
@@ -247,7 +249,10 @@ app.get('/api/search', async (req, res) => {
 app.get('/api/categories', async (req, res) => {
     try {
         const result = await client.query(`
-            SELECT * FROM mall.categories ORDER BY name
+            SELECT category AS name, COUNT(*) AS store_count
+            FROM mall.stores
+            GROUP BY category
+            ORDER BY category
         `);
         res.json({
             categories: result.rows,
