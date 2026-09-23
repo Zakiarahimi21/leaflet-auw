@@ -1,8 +1,6 @@
-# BALI - ARCADE Team Notes
 
-## Project
-
-Vanilla HTML, CSS, JavaScript, Leaflet, Express, PostgreSQL, and GeoJSON. The application displays the indoor mall floor plan and store/facility locations.
+# Hey everyone! the following are the changes i brought in the frontend.
+# BALI - ARCADE front-end Notes :)
 
 ## Run Locally
 
@@ -39,7 +37,6 @@ Import the GeoJSON stores:
 node import_data.js
 ```
 
-Do not run these commands from `C:\Users\Lenovo`; run them from the repository folder.
 
 ## Frontend Files
 
@@ -70,14 +67,7 @@ Do not change map coordinates, image bounds, GeoJSON geometry, or floor numberin
 - `GET /api/categories`: category counts.
 - `GET /api/stats`: database statistics.
 
-## Team Guidelines
 
-- Frontend teammates: primarily edit `index.html`, `style.css`, and `map-canvas.js`.
-- PostgreSQL teammates: edit `database/schema.sql`, import scripts, and server queries carefully. Preserve existing columns and geometry.
-- Map/data teammates: validate `database/ground_floor.json` and `first_floor.png` before changing coordinates.
-- Backend teammates: preserve the existing API response formats so the frontend continues to work.
-- Do not migrate the project to React, Vue, Tailwind, or another framework.
-- Do not commit passwords, local `.env` files, or generated database data.
 
 ## Quick Checks
 
