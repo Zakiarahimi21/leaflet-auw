@@ -1,30 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <title>Hannah Webpage</title>
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-        crossorigin=""/>
-
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="style.css" />
-
-    <!-- Leaflet JavaScript -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-     crossorigin=""></script>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BALI - ARCADE | Indoor Map</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-    <div id="map"></div>
-
-    <!-- Link your custom indoor floor map JavaScript file -->
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <header class="topbar">
+        <button class="brand" id="brand-button" type="button" aria-label="Center map on BALI - ARCADE"><span class="brand-pin" aria-hidden="true">●</span><span>BALI - ARCADE</span></button>
+        <form class="search-form" id="search-form" role="search"><span class="search-symbol" aria-hidden="true"></span><input id="search-input" type="search" placeholder="Search for shops, rooms, toilets..." autocomplete="off" aria-label="Search the mall"><div class="search-results" id="search-results" hidden></div></form>
+        <div class="header-actions"><label class="floor-select-label" for="floor-select"><span class="sr-only">Select floor</span><select class="level-button" id="floor-select" aria-label="Select floor"><option value="0" data-label="Ground Floor">Ground Floor</option><option value="0" data-label="First Floor" selected>First Floor</option><option value="2" data-label="Floor 2">Floor 2</option><option value="3" data-label="Floor 3">Floor 3</option><option value="4" data-label="Floor 4">Floor 4</option><option value="5" data-label="Floor 5">Floor 5</option><option value="6" data-label="Floor 6">Floor 6</option><option value="7" data-label="Floor 7">Floor 7</option><option value="8" data-label="Floor 8">Floor 8</option><option value="9" data-label="Floor 9">Floor 9</option><option value="10" data-label="Floor 10">Floor 10</option></select></label><button class="menu-button" id="menu-button" type="button" hidden aria-hidden="true"></button></div>
+    </header>
+    <main class="app-shell">
+        <aside class="sidebar" id="sidebar" aria-label="Primary navigation"><nav>
+            <button class="nav-item is-active" type="button" data-view="map"><span class="nav-icon">⌑</span>Map</button>
+            <div class="sidebar-group"><button class="group-toggle" type="button" aria-expanded="true"><span class="nav-icon">▢</span>Shops <span class="group-chevron">⌃</span></button><div class="group-options"><button class="category-filter" type="button" data-category="Children's Clothing"><img src="icons/childrens-clothing.svg" alt="">Children's Clothing</button><button class="category-filter" type="button" data-category="Women's Clothing"><img src="icons/womens-clothing.svg" alt="">Women's Clothing</button><button class="category-filter" type="button" data-category="Men's Clothing"><img src="icons/mens-clothing.svg" alt="">Men's Clothing</button><button class="category-filter" type="button" data-category="Tech Store"><img src="icons/tech-store.svg" alt="">Tech Store</button><button class="category-filter" type="button" data-category="Bags & Accessories"><img src="icons/bags-accessories.svg" alt="">Bags &amp; Accessories</button></div></div>
+            <div class="sidebar-group"><button class="group-toggle" type="button" aria-expanded="true"><span class="nav-icon">♨</span>Food &amp; Drinks <span class="group-chevron">⌃</span></button><div class="group-options"><button class="category-filter" type="button" data-category="Food & Drinks">Food &amp; Drinks</button></div></div>
+            <div class="sidebar-group"><button class="group-toggle" type="button" aria-expanded="true"><span class="nav-icon">⌁</span>Facilities <span class="group-chevron">⌃</span></button><div class="group-options"><button class="category-filter" type="button" data-category="Toilets"><img src="icons/restroom.svg" alt="">Toilets</button><button class="category-filter" type="button" data-category="Lifts"><img src="icons/elevator.svg" alt="">Lifts</button><button class="category-filter" type="button" data-category="Escalators"><img src="icons/escalator.svg" alt="">Escalators</button><button class="category-filter" type="button" data-category="Fire Exits"><img src="icons/fire-exit.svg" alt="">Fire Exits</button></div></div>
+        </nav></aside>
+        <section class="workspace">
+            <div class="map-layout">
+                <section class="map-card" aria-label="Interactive BALI - ARCADE floor map"><div id="map"></div><div class="map-controls" aria-label="Map controls"><button id="zoom-in" type="button" aria-label="Zoom in">+</button><button id="zoom-out" type="button" aria-label="Zoom out">−</button><button id="reset-map" type="button" aria-label="Reset map">◯</button></div></section>
+                <aside class="details-panel" id="details-panel" aria-live="polite"><button class="close-details" id="close-details" type="button" aria-label="Close details">×</button><div class="details-heading"><div class="details-icon" id="details-icon">⌂</div><div><h2 id="details-name">Select a space</h2><p id="details-category">Explore the map to view details</p></div></div><span class="floor-pill" id="details-floor">First Floor</span><div class="store-placeholder" id="store-image-preview" aria-label="Store image placeholder"><span>No store image available</span></div><dl class="details-list"><div><dt>Floor</dt><dd id="details-floor-value">First Floor</dd></div><div><dt>Category</dt><dd id="details-category-value">-</dd></div></dl><div class="nearby-section"><h3>Nearby</h3><div id="nearby-list"><p class="empty-state">Select a store to see nearby spaces.</p></div></div><div class="details-actions"><button class="edit-button" id="edit-store" type="button">Edit store</button></div></aside>
+            </div>
+            <div class="location-label"><span aria-hidden="true">●</span><strong>BALI - ARCADE</strong><span>|</span><span>First Floor</span></div>
+        </section>
+    </main>
+    <dialog class="store-dialog" id="store-dialog">
+        <form id="store-form" method="dialog">
+            <div class="dialog-header"><div><span class="dialog-eyebrow">Store editor</span><h2 id="dialog-title">Edit store</h2></div><button class="dialog-close" id="dialog-close" type="button" aria-label="Close editor">×</button></div>
+            <label>Store name<input id="store-name-input" name="name" required></label>
+            <label>Category<input id="store-category-input" name="category" placeholder="e.g. retail"></label>
+            <label>Store image<input id="store-image-input" name="image" type="file" accept="image/*"></label>
+            <div class="upload-preview" id="upload-preview">No image selected</div>
+            <p class="dialog-note">Edits and images are saved in this browser. New stores are placed at the current map center. Publishing to PostgreSQL requires a protected shopkeeper account and upload endpoint.</p>
+            <div class="dialog-actions"><button class="dialog-cancel" id="dialog-cancel" type="button">Cancel</button><button class="dialog-save" type="submit">Save changes</button></div>
+        </form>
+    </dialog>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
     <script src="map-canvas.js"></script>
 </body>
-
 </html>
