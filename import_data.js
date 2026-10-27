@@ -23,9 +23,17 @@ async function importData() {
 
             const query = `
                 INSERT INTO mall.stores
-                    (store_id, name, type, floor_id, category, status, coordinates)
+                    (store_id, name, type, floor_id, category, status, geometry_type, coordinates)
                 VALUES
-                    ($1, $2, $3, (SELECT id FROM mall.floors WHERE floor_number = 0), $4, $5, $6)
+                    ($1, $2, $3, (SELECT id FROM mall.floors WHERE floor_number = 0), $4, $5, $6, $7)
+                ON CONFLICT (store_id) DO UPDATE SET
+                    name = CASE WHEN mall.stores.name IS NOT NULL AND mall.stores.name != mall.stores.store_id THEN mall.stores.name ELSE EXCLUDED.name END,
+                    type = EXCLUDED.type,
+                    floor_id = EXCLUDED.floor_id,
+                    category = EXCLUDED.category,
+                    status = EXCLUDED.status,
+                    geometry_type = EXCLUDED.geometry_type,
+                    coordinates = EXCLUDED.coordinates
                 RETURNING id
             `;
 
@@ -35,6 +43,7 @@ async function importData() {
                 props.type || 'shop',
                 props.category || 'retail',
                 props.status || 'active',
+                feature.geometry.type,
                 JSON.stringify(feature.geometry.coordinates),
             ];
 

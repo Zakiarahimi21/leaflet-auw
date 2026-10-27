@@ -1,578 +1,267 @@
-// 1. Set dimensions of your classroom-map.jpg
-const planWidth = 1440;   // replace with actual image width
-const planHeight = 1024;  // replace with actual image height
-
-// 2. Create map with simple CRS
-var map = L.map('map', {
-    crs: L.CRS.Simple,
-    minZoom: -1,
-    maxZoom: 2,
-    zoomSnap: 0.5
-});
-
-// 3. Bounds of the image
+const API_BASE = window.location.origin.includes(':3000') ? '' : 'http://localhost:3000';
+const planWidth = 1440;
+const planHeight = 1024;
 const floorBounds = [[0, 0], [planHeight, planWidth]];
+let floorLabel = 'First Floor';
+const iconRoot = 'icons/';
+const categories = [['childrens-clothing', "Children's Clothing"], ['parking', 'Parking'], ['tech-store', 'Tech Store'], ['bags-accessories', 'Bags & Accessories'], ['elevator', 'Elevator'], ['restroom', 'Restroom'], ['escalator', 'Escalator'], ['womens-clothing', "Women's Clothing"], ['mens-clothing', "Men's Clothing"]];
+const map = L.map('map', { crs: L.CRS.Simple, minZoom: -1, maxZoom: 2, zoomSnap: 0.5, zoomControl: false });
+L.imageOverlay('first_floor.png', floorBounds).addTo(map);
+let storeLayer;
+let allFeatures = [];
+let selectedLayer;
+let activeCategory = null;
+const featureMarkers = new Map();
+const featureLayers = new Map();
+let currentFeature = null;
+let creatingStore = false;
+let newStoreLocation = null;
+let pendingImage = null;
 
-// 4. Add classroom map image
-const classroomImage = L.imageOverlay('first_floor.png', floorBounds);
-classroomImage.addTo(map);
+function escapeHtml(value) { return String(value ?? '').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character])); }
+function localStoreData(feature) { const key = feature.properties?.store_id || feature.properties?.id; return key ? JSON.parse(localStorage.getItem(`bali-store-${key}`) || 'null') : null; }
+function featureLabel(feature) {
+    const properties = feature.properties || {};
+    // Database name from PostgreSQL takes top priority!
+    return properties.name || localStoreData(feature)?.name || properties.store_id || properties.id || 'Unnamed space';
+}
+function categoryIcon(feature) { const value = `${feature.properties?.category || ''} ${feature.properties?.type || ''} ${featureLabel(feature)}`.toLowerCase(); const match = categories.find(([key, label]) => value.includes(label.toLowerCase()) || value.includes(key.replace('-', ' '))); return match ? `${iconRoot}${match[0]}.svg` : null; }
+function mapFeatureIcon(feature) {
+    const name = featureLabel(feature).toLowerCase();
+    if (name.includes('toilet')) return 'restroom';
+    if (name.includes('lift')) return 'elevator';
+    if (name.includes('escalator')) return 'escalator';
+    if (name.includes('parking')) return 'parking';
+    if (name.includes('fire exit')) return 'fire-exit';
+    return null;
+}
+function addFeatureIcon(feature, layer) {
+    const iconName = mapFeatureIcon(feature);
+    if (!iconName || !layer.getBounds().isValid()) return;
+    const marker = L.marker(layer.getBounds().getCenter(), {
+        icon: L.divIcon({ className: 'map-feature-icon', html: `<img src="${iconRoot}${iconName}.svg" alt="">`, iconSize: [30, 30], iconAnchor: [15, 15] }),
+        interactive: false,
+        keyboard: false
+    }).addTo(map);
+    featureMarkers.set(feature, marker);
+}
+function setDetails(feature) {
+    const properties = feature.properties || {};
+    const saved = localStoreData(feature) || {};
+    const category = saved.category || properties.category || properties.type || 'Uncategorized';
+    currentFeature = feature;
+    document.querySelector('#details-name').textContent = featureLabel(feature);
+    document.querySelector('#details-category').textContent = category;
+    document.querySelector('#details-floor').textContent = floorLabel;
+    document.querySelector('#details-floor-value').textContent = floorLabel;
+    document.querySelector('#details-category-value').textContent = category;
+    const icon = categoryIcon(feature) || (mapFeatureIcon(feature) ? `${iconRoot}${mapFeatureIcon(feature)}.svg` : null);
+    document.querySelector('#details-icon').innerHTML = icon ? `<img src="${icon}" alt="">` : '⌂';
+    document.querySelector('#store-image-preview').innerHTML = saved.image ? `<img src="${saved.image}" alt="Image of ${escapeHtml(featureLabel(feature))}">` : '<span>No store image available</span>';
+    const origin = featureLayers.get(feature)?.getBounds().getCenter();
+    const nearby = allFeatures.filter(item => item !== feature && featureLayers.has(item)).sort((left, right) => {
+        const leftCenter = featureLayers.get(left).getBounds().getCenter();
+        const rightCenter = featureLayers.get(right).getBounds().getCenter();
+        return origin.distanceTo(leftCenter) - origin.distanceTo(rightCenter);
+    }).slice(0, 3);
+    document.querySelector('#nearby-list').innerHTML = nearby.length ? nearby.map(item => `<button class="nearby-item" type="button" data-feature-id="${escapeHtml(item.properties?.store_id || item.properties?.id || featureLabel(item))}"><span>${escapeHtml(featureLabel(item))}</span><span aria-hidden="true">›</span></button>`).join('') : '<p class="empty-state">No nearby spaces available.</p>';
+    document.querySelectorAll('.nearby-item').forEach(button => button.addEventListener('click', () => {
+        const nearbyFeature = allFeatures.find(item => String(item.properties?.store_id || item.properties?.id || featureLabel(item)) === button.dataset.featureId);
+        if (nearbyFeature) selectFeature(nearbyFeature, featureLayers.get(nearbyFeature));
+    }));
+}
+function resetLayerStyle(layer) { layer.setStyle({ color: '#655d54', weight: 1.2, opacity: 0.85, fillColor: '#f7f1e8', fillOpacity: 0.32 }); }
+function selectFeature(feature, layer) {
+    if (selectedLayer) resetLayerStyle(selectedLayer);
+    selectedLayer = layer;
+    layer.setStyle({ color: '#9a6c35', weight: 2.5, opacity: 1, fillColor: '#f3d8b5', fillOpacity: 0.72 });
+    layer.bringToFront();
+    setDetails(feature);
+    // Smoothly pan to the store without blowing up the map zoom level!
+    if (layer.getBounds().isValid()) {
+        map.panTo(layer.getBounds().getCenter(), { animate: true });
+    }
+}
+function matchesCategory(feature, label) { if (!label) return true; const value = `${feature.properties?.category || ''} ${feature.properties?.type || ''} ${featureLabel(feature)}`.toLowerCase(); const aliases = { 'elevator': ['elevator', 'lift'], 'lifts': ['elevator', 'lift'], 'restroom': ['restroom', 'toilet'], 'toilets': ['restroom', 'toilet'], 'escalator': ['escalator'], 'escalators': ['escalator'], 'parking': ['parking'], 'fire exit': ['fire exit'], 'fire exits': ['fire exit'] }; return (aliases[label.toLowerCase()] || [label.toLowerCase()]).some(alias => value.includes(alias)); }
+function filterFeatures(label) { activeCategory = label; document.querySelectorAll('.category-item, .category-filter').forEach(button => button.classList.toggle('is-active', button.dataset.category === label)); if (!storeLayer) return; storeLayer.eachLayer(layer => { const visible = matchesCategory(layer.feature, label); layer.setStyle({ opacity: visible ? 0.85 : 0.08, fillOpacity: visible ? 0.32 : 0.03 }); const marker = featureMarkers.get(layer.feature); if (marker) marker.setOpacity(visible ? 1 : 0.08); }); }
+function buildCategoryBar() { return; }
+function renderSearchResults(query) { const results = document.querySelector('#search-results'); const matches = allFeatures.filter(feature => `${featureLabel(feature)} ${feature.properties?.category || ''} ${feature.properties?.type || ''}`.toLowerCase().includes(query.toLowerCase())).slice(0, 6); results.innerHTML = matches.map(feature => `<button class="search-result" type="button" data-id="${escapeHtml(feature.properties?.store_id || feature.properties?.id || featureLabel(feature))}">${escapeHtml(featureLabel(feature))}<br><small>${escapeHtml(feature.properties?.category || feature.properties?.type || 'Space')}</small></button>`).join(''); results.hidden = !query || !matches.length; results.querySelectorAll('.search-result').forEach(button => button.addEventListener('click', () => { const feature = allFeatures.find(item => String(item.properties?.store_id || item.properties?.id || featureLabel(item)) === button.dataset.id); const layer = storeLayer.getLayers().find(item => item.feature === feature); if (feature && layer) selectFeature(feature, layer); results.hidden = true; })); }
+function openStoreEditor(feature = null, isNew = false) {
+    creatingStore = isNew;
+    currentFeature = feature;
+    pendingImage = feature ? localStoreData(feature)?.image || null : null;
+    document.querySelector('#dialog-title').textContent = isNew ? 'Add store' : 'Edit store';
+    document.querySelector('#store-name-input').value = feature ? featureLabel(feature) : '';
+    document.querySelector('#store-category-input').value = feature ? (localStoreData(feature)?.category || feature.properties?.category || '') : '';
+    document.querySelector('#upload-preview').innerHTML = pendingImage ? `<img src="${pendingImage}" alt="Current store image">` : 'No image selected';
+    const noteEl = document.querySelector('#dialog-note');
+    if (noteEl) {
+        noteEl.textContent = 'Changes will be saved directly to your PostgreSQL database.';
+        noteEl.style.color = '#655d54';
+    }
+    document.querySelector('#store-dialog').showModal();
+}
+async function saveStoreEditor(event) {
+    event.preventDefault();
+    const nameInput = document.querySelector('#store-name-input');
+    const categoryInput = document.querySelector('#store-category-input');
+    const noteEl = document.querySelector('#dialog-note');
+    const saveBtn = document.querySelector('.dialog-save');
 
-// 5. Load store polygons from PostgreSQL
-fetch('http://localhost:3000/api/map/1')
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Failed to load map data');
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('✅ PostgreSQL map data loaded:', data);
-        console.log(`🏪 Stores loaded: ${data.features.length}`);
+    const name = nameInput.value.trim();
+    const category = categoryInput.value.trim() || 'retail';
+    if (!name) return;
 
-        const storeLayer = L.geoJSON(data, {
-            style: {
-                weight: 2,
-                fillOpacity: 0.25
-            },
+    if (noteEl) {
+        noteEl.textContent = 'Saving directly to PostgreSQL database...';
+        noteEl.style.color = '#9a6c35';
+    }
+    if (saveBtn) saveBtn.disabled = true;
 
-            onEachFeature: function (feature, layer) {
-                const p = feature.properties;
+    if (creatingStore) {
+        const id = `local-${Date.now()}`;
+        const location = newStoreLocation || map.getCenter();
+        currentFeature = { type: 'Feature', properties: { id, store_id: id, name, category, type: 'shop', floor: 'first' }, geometry: { type: 'Point', coordinates: [location.lng, location.lat] } };
+        allFeatures.push(currentFeature);
+        storeLayer.addData(currentFeature);
+    }
+    if (currentFeature.properties) {
+        currentFeature.properties.name = name;
+        currentFeature.properties.category = category;
+    }
+    const key = currentFeature.properties.id || currentFeature.properties.store_id;
+    localStorage.setItem(`bali-store-${key}`, JSON.stringify({ name, category, image: pendingImage, feature: creatingStore ? currentFeature : undefined }));
 
-                layer.bindPopup(`
-                    <strong>${p.name || 'Unnamed Store'}</strong><br>
-                    Store: ${p.store_number || 'N/A'}<br>
-                    Type: ${p.store_type || 'N/A'}<br>
-                    Brand: ${p.brand || 'N/A'}
-                `);
-            }
+    // Send update directly to PostgreSQL database
+      let dbSaved = false;
+    try {
+        const targetId = currentFeature?.properties?.id || currentFeature?.properties?.store_id || currentFeature?.properties?.name;
+        let response = await
+         fetch(`${API_BASE}/api/stores/${encodeURIComponent(targetId)}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name,
+                category,
+                id: currentFeature.properties.id,
+                store_number: currentFeature.properties.store_id || currentFeature.properties.name
+            })
         });
 
-        storeLayer.addTo(map);
+        // Fallback to POST if PUT isn't allowed or route not found
+        if (response.status === 404 || response.status === 405) {
+            response = await fetch(`${API_BASE}/api/stores/${encodeURIComponent(targetId)}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name,
+                    category,
+                    id: currentFeature.properties.id,
+                    store_number: currentFeature.properties.store_id || currentFeature.properties.name
+                })
+            });
+        }
 
-        console.log('✅ Store polygons added to Leaflet');
-    })
-    .catch(error => {
-        console.error('❌ Could not load PostgreSQL map:', error);
+        const rawText = await response.text();
+        let result = {};
+        try {
+            result = JSON.parse(rawText);
+        } catch (parseErr) {
+            throw new Error(`Server returned HTTP ${response.status}: not JSON. Please restart "node server-pg.js" in terminal.`);
+        }
+
+        if (response.ok && result.success) {
+            dbSaved = true;
+            if (noteEl) {
+                noteEl.textContent = `✅ Saved to database: "${name}"`;
+                noteEl.style.color = '#2e7d32';
+            }
+            console.log('✅ Store updated in PostgreSQL database:', result);
+        } else {
+            if (noteEl) {
+                noteEl.textContent = `⚠️ Database response: ${result.message || 'Update failed'}`;
+                noteEl.style.color = '#c62828';
+            }
+        }
+    } catch (apiErr) {
+        if (noteEl) {
+            noteEl.textContent = `❌ Could not connect (${apiErr.message}). Make sure 'node server-pg.js' is running.`;
+            noteEl.style.color = '#c62828';
+        }
+        console.error('Could not contact API to save in database:', apiErr);
+    } finally {
+        if (saveBtn) saveBtn.disabled = false;
+    }
+
+    const layer = featureLayers.get(currentFeature);
+    if (layer) selectFeature(currentFeature, layer);
+
+    if (dbSaved) {
+        setTimeout(() => {
+            document.querySelector('#store-dialog').close();
+        }, 500);
+    }
+}
+function loadLocalStores() {
+    Object.keys(localStorage).filter(key => key.startsWith('bali-store-local-')).forEach(key => {
+        const saved = JSON.parse(localStorage.getItem(key) || 'null');
+        if (!saved?.feature || allFeatures.some(feature => feature.properties?.store_id === saved.feature.properties?.store_id)) return;
+        allFeatures.push(saved.feature);
+        storeLayer.addData(saved.feature);
     });
-// 5. Fit map to image bounds
+}
+function wireFloorSelect() {
+    document.querySelector('#floor-select').addEventListener('change', event => {
+        floorLabel = event.target.selectedOptions[0].dataset.label;
+        document.querySelector('#details-floor').textContent = floorLabel;
+        document.querySelector('#details-floor-value').textContent = floorLabel;
+        document.querySelector('.location-label span:last-child').textContent = floorLabel;
+    });
+}
+function setupAdminGate() {
+    const addStore = document.querySelector('#add-store');
+    const adminDialog = document.querySelector('#admin-dialog');
+    const adminForm = document.querySelector('#admin-form');
+    const adminError = document.querySelector('#admin-error');
+    const openEditor = () => {
+        document.querySelector('#sidebar').classList.remove('is-open');
+        newStoreLocation = map.getCenter();
+        openStoreEditor(null, true);
+    };
+    addStore.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        if (sessionStorage.getItem('bali-admin-token')) return openEditor();
+        adminError.hidden = true;
+        adminForm.reset();
+        adminDialog.showModal();
+    }, true);
+    adminForm.addEventListener('submit', async event => {
+        event.preventDefault();
+        const response = await fetch(`${API_BASE}/api/admin/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: document.querySelector('#admin-password').value }) });
+        const result = await response.json();
+        if (!response.ok) {
+            adminError.textContent = result.error || 'Admin login failed';
+            adminError.hidden = false;
+            return;
+        }
+        sessionStorage.setItem('bali-admin-token', result.token);
+        adminDialog.close();
+        openEditor();
+    });
+    document.querySelector('#admin-close').addEventListener('click', () => adminDialog.close());
+    document.querySelector('#admin-cancel').addEventListener('click', () => adminDialog.close());
+}
+function wireUi() { document.querySelector('#zoom-in').addEventListener('click', () => map.zoomIn()); document.querySelector('#zoom-out').addEventListener('click', () => map.zoomOut()); document.querySelector('#reset-map').addEventListener('click', () => map.fitBounds(floorBounds)); document.querySelector('#brand-button').addEventListener('click', () => map.fitBounds(floorBounds)); document.querySelector('#close-details').addEventListener('click', () => { if (selectedLayer) resetLayerStyle(selectedLayer); selectedLayer = null; }); document.querySelector('#edit-store').addEventListener('click', () => { if (currentFeature) openStoreEditor(currentFeature); }); document.querySelector('#add-store').addEventListener('click', () => { document.querySelector('#sidebar').classList.remove('is-open'); newStoreLocation = map.getCenter(); openStoreEditor(null, true); }); document.querySelectorAll('.group-toggle').forEach(button => button.addEventListener('click', () => { const options = button.nextElementSibling; const expanded = button.getAttribute('aria-expanded') === 'true'; button.setAttribute('aria-expanded', String(!expanded)); options.classList.toggle('is-collapsed', expanded); button.querySelector('.group-chevron').textContent = expanded ? '⌄' : '⌃'; })); document.querySelectorAll('.category-filter').forEach(button => button.addEventListener('click', () => { filterFeatures(activeCategory === button.dataset.category ? null : button.dataset.category); })); document.querySelector('#dialog-close').addEventListener('click', () => document.querySelector('#store-dialog').close()); document.querySelector('#dialog-cancel').addEventListener('click', () => document.querySelector('#store-dialog').close()); document.querySelector('#store-form').addEventListener('submit', saveStoreEditor); document.querySelector('#store-image-input').addEventListener('change', event => { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = () => { pendingImage = reader.result; document.querySelector('#upload-preview').innerHTML = `<img src="${pendingImage}" alt="Selected store image">`; }; reader.readAsDataURL(file); }); document.querySelector('#search-input').addEventListener('input', event => renderSearchResults(event.target.value.trim())); document.querySelector('#search-form').addEventListener('submit', event => event.preventDefault()); document.querySelector('#menu-button').addEventListener('click', () => { const sidebar = document.querySelector('#sidebar'); sidebar.classList.toggle('is-open'); document.querySelector('#menu-button').setAttribute('aria-label', sidebar.classList.contains('is-open') ? 'Close navigation menu' : 'Open navigation menu'); }); }
+buildCategoryBar();
+if (!document.querySelector('#add-store')) {
+    const removedAddStore = document.createElement('button');
+    removedAddStore.id = 'add-store';
+    removedAddStore.hidden = true;
+    document.body.appendChild(removedAddStore);
+}
+wireUi();
+document.querySelector('#add-store')?.remove();
+wireFloorSelect();
 map.fitBounds(floorBounds);
-// Add a legend
-var legend = L.control({position: 'bottomright'});
-legend.onAdd = function(map) {
-    var div = L.DomUtil.create('div', 'info legend');
-    div.style.backgroundColor = 'white';
-    div.style.padding = '10px';
-    div.style.borderRadius = '5px';
-    div.style.boxShadow = '0 0 15px rgba(0,0,0,0.2)';
-    div.innerHTML = `
-        <h4 style="margin:0 0 8px 0;">📍 Legend</h4>
-        <p style="margin:4px 0;">🟦 <span style="color:#4A90D9;">Rooms</span></p>
-        <p style="margin:4px 0;">🚻 Toilets</p>
-        <p style="margin:4px 0;">🛗 Lifts</p>
-        <p style="margin:4px 0;">🔥 Fire Exits</p>
-        <p style="margin:4px 0;">⬆️ Escalators</p>
-    `;
-    return div;
-};
-legend.addTo(map);
-
-
-// 6. Example polygons (replace coords with real ones)
-// Polygon for Room S 33–37
-const s33_37 = L.polygon([
-    [972.271824, 211.424928],  // A
-    [974.393144, 540.936688],  // B
-    [940.452019, 543.058008],  // C
-    [939.037805, 504.874242],  // D
-    [803.273303, 497.096067],  // E
-    [799.030663, 207.889394]   // F
-], {
-    color: '#FF6B6B',
-    fillColor: '#FF6B6B',
-    fillOpacity: 0.1
-}).addTo(map);
-
-s33_37.bindPopup("<h3>S 33-37</h3><p>Shop number S 33-37</p>");
-
-// Room S 31–32
-const s31_32 = L.polygon([
-    [974.393144, 540.936688], // A
-    [974, 689],               // B
-    [797, 689],               // C
-    [798.5, 588.5],           // D
-    [941.5, 587],             // E
-    [940.452019, 543.058008]  // F
-], {
-    color: '#cccccc',
-    fillColor: '#cccccc',
-    fillOpacity: 0.1
-}).addTo(map);
-s31_32.bindPopup("<h3>Room S 31-32</h3>");
-
-// Female Toilet
-const femaleToilet = L.polygon([
-    [798.5, 588.5],
-    [797, 689],
-    [724.784451, 690.136218],
-    [722.66313, 589.727056]
-], {
-    color: '#cccccc',
-    fillColor: '#cccccc',
-    fillOpacity: 0.1
-}).addTo(map);
-femaleToilet.bindPopup("<h3>Female Toilet</h3>");
-
-// Male Toilet
-const maleToilet = L.polygon([
-    [722.66313, 589.727056],
-    [718.42049, 661.14484],
-    [666.801695, 661.14484],
-    [661.851947, 591.141269]
-], {
-    color: '#cccccc',
-    fillColor: '#cccccc',
-    fillOpacity: 0.1
-}).addTo(map);
-maleToilet.bindPopup("<h3>Male Toilet</h3>");
-
-// Room S-30
-const s30 = L.polygon([
-    [718.42049, 661.14484],
-    [721.248917, 729.734198],
-    [666.094588, 728.319985],
-    [666.801695, 661.14484]
-], {
-    color: '#cccccc',
-    fillColor: '#cccccc',
-    fillOpacity: 0.1
-}).addTo(map);
-s30.bindPopup("<h3>Room S-30</h3>");
-
-// Room S-29
-const s29 = L.polygon([
-    [721.248917, 729.734198],
-    [721.956024, 796.202236],
-    [663.973268, 794.788022],
-    [666.094588, 728.319985]
-], {
-    color: '#cccccc',
-    fillColor: '#cccccc',
-    fillOpacity: 0.1
-}).addTo(map);
-s29.bindPopup("<h3>Room S-29</h3>");
-
-// Room S-28
-const s28 = L.polygon([
-    [721.956024, 796.202236],
-    [664.680374, 866.205807],
-    [663.973268, 794.788022]
-], {
-    color: '#cccccc',
-    fillColor: '#cccccc',
-    fillOpacity: 0.1
-}).addTo(map);
-s28.bindPopup("<h3>Room S-28</h3>");
-
-// Fire Exit (near S-28)
-const fireExit1 = L.polygon([
-    [664.680374, 866.205807],
-    [658.5, 881.5]
-], {
-    color: '#cccccc',
-    fillColor: '#cccccc',
-    fillOpacity: 0.1
-}).addTo(map);
-fireExit1.bindPopup("<h3>Fire Exit</h3>");
-
-// Lift
-const lift = L.polygon([
-    [789.5, 390],
-    [792.5, 446.5],
-    [729, 445],
-    [728, 392]
-], {
-    color: '#cccccc',
-    fillColor: '#cccccc',
-    fillOpacity: 0.1
-}).addTo(map);
-lift.bindPopup("<h3>Stairs</h3>");
-
-// Fire Exit (near Lift)
-const fireExit2 = L.polygon([
-    [792.5, 446.5],
-    [792.5, 482.5],
-    [728.5, 484],
-    [729, 445]
-], {
-    color: '#cccccc',
-    fillColor: '#cccccc',
-    fillOpacity: 0.1
-}).addTo(map);
-fireExit2.bindPopup("<h3>Fire Exit</h3>");
-
-// Lift Lobby
-const liftLobby = L.polygon([
-    [728, 392],
-    [722, 452],
-    [679, 452.5],
-    [683, 394.5]
-], {
-    color: '#cccccc',
-    fillColor: '#cccccc',
-    fillOpacity: 0.1
-}).addTo(map);
-liftLobby.bindPopup("<h3>Lift Lobby</h3>");
-
-// Goods Lift
-const goodsLift = L.polygon([
-    [683, 394.5],
-    [675.5, 495.5],
-    [627, 495.5],
-    [630, 393.5]
-], {
-    color: '#cccccc',
-    fillColor: '#cccccc',
-    fillOpacity: 0.1
-}).addTo(map);
-goodsLift.bindPopup("<h3>Goods Lift</h3>");
-
-// Fire Exit (near Goods Lift)
-const fireExit3 = L.polygon([
-    [675.5, 495.5],
-    [676, 529],
-    [611.5, 528.5],
-    [614.5, 499]
-], {
-    color: '#cccccc',
-    fillColor: '#cccccc',
-    fillOpacity: 0.1
-}).addTo(map);
-fireExit3.bindPopup("<h3>Fire Exit</h3>");
-
-// Room S-27
-const s27 = L.polygon([
-    [610.940259, 588.312842],
-    [612.354473, 660.437734],
-    [564.271211, 663.266161],
-    [560.028571, 591.848376]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-s27.bindPopup("<h3>Room S-27</h3>");
-
-// Room S-26
-const s26 = L.polygon([
-    [612.354473, 660.437734],
-    [613.768686, 729.027091],
-    [560.028571, 728.319985],
-    [564.271211, 663.266161]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-s26.bindPopup("<h3>Room S-26</h3>");
-
-// Room S-25
-const s25 = L.polygon([
-    [613.768686, 729.027091],
-    [612.354473, 793.373808],
-    [565.685425, 794.788022],
-    [560.028571, 728.319985]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-s25.bindPopup("<h3>Room S-25</h3>");
-
-// Room S-24
-const s24 = L.polygon([
-    [612.354473, 793.373808],
-    [610.940259, 859.134739],
-    [563.564105, 859.134739],
-    [565.685425, 794.788022]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-s24.bindPopup("<h3>Room S-24</h3>");
-
-// Room S-23
-const s23 = L.polygon([
-    [633.567676, 907.218],
-    [583.009541, 971.918271],
-    [573.110046, 971.211164],
-    [568.867405, 906.864447]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-s23.bindPopup("<h3>Room S-23</h3>");
-
-// Room S-22
-const s22 = L.polygon([
-    [583.009541, 971.918271],
-    [504.167135, 1077.984288],
-    [503.813582, 972.978931]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-s22.bindPopup("<h3>Room S-22</h3>");
-
-// Room S-21
-const s21 = L.polygon([
-    [568.867405, 906.864447],
-    [573.110046, 971.211164],
-    [503.813582, 972.978931],
-    [502.399368, 907.925107]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-s21.bindPopup("<h3>Room S-21</h3>");
-
-// Room S-20
-const s20 = L.polygon([
-    [513, 793],
-    [514, 861],
-    [453, 860.5],
-    [450.5, 795]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-s20.bindPopup("<h3>Room S-20</h3>");
-
-// Room S-19
-const s19 = L.polygon([
-    [513, 729],
-    [513, 793],
-    [450.5, 795],
-    [451.5, 730]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-s19.bindPopup("<h3>Room S-19</h3>");
-
-// Room S-13
-const s13 = L.polygon([
-    [450.5, 795],
-    [453, 860.5],
-    [378.5, 859],
-    [378, 793.5]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-s13.bindPopup("<h3>Room S-13</h3>");
-
-// Room S-18
-const s18 = L.polygon([
-    [513.5, 660.5],
-    [513, 729],
-    [451.5, 730],
-    [452.5, 659.5]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-s18.bindPopup("<h3>Room S-18</h3>");
-
-// Room S-14
-const s14 = L.polygon([
-    [451.5, 730],
-    [450.5, 795],
-    [378, 793.5],
-    [379, 730]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-s14.bindPopup("<h3>Room S-14</h3>");
-
-// Room S-15
-const s15 = L.polygon([
-    [452.5, 659.5],
-    [451.5, 730],
-    [379, 730],
-    [379, 660]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-s15.bindPopup("<h3>Room S-15</h3>");
-
-// Room S-17
-const s17 = L.polygon([
-    [512.5, 590.5],
-    [513.5, 660.5],
-    [452.5, 659.5],
-    [451.5, 589]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-s17.bindPopup("<h3>Room S-17</h3>");
-
-// Room S-16
-const s16 = L.polygon([
-    [451.5, 589],
-    [452.5, 659.5],
-    [379, 660],
-    [381, 590.5]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-s16.bindPopup("<h3>Room S-16</h3>");
-
-// Escalator (Left, down)
-const escalatorLeft = L.polygon([
-    [433.5, 903],
-    [435.5, 948],
-    [256, 949.5],
-    [254.5, 902.5]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-escalatorLeft.bindPopup("<h3>Escalator (Left, Down)</h3>");
-
-// Escalator (Right, up)
-const escalatorRight = L.polygon([
-    [435.5, 998],
-    [436, 1042.5],
-    [255.5, 1043.5],
-    [257, 998]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-escalatorRight.bindPopup("<h3>Escalator (Right, Up)</h3>");
-
-// Corner Shop
-const cornerShop = L.polygon([
-    [453.962554, 1095.308404],
-    [454.66966, 1132.785063],
-    [398.808225, 1135.613491],
-    [400.222438, 1096.015511]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-cornerShop.bindPopup("<h3>Corner Shop</h3>");
-
-// Room S-12
-const s12 = L.polygon([
-    [329.5, 526.5],
-    [329, 595.5],
-    [256.5, 595.5],
-    [256.5, 526]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-s12.bindPopup("<h3>Room S-12</h3>");
-
-// Room S-11
-const s11 = L.polygon([
-    [329, 595.5],
-    [328.5, 664],
-    [258.5, 663.5],
-    [256.5, 595.5]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-s11.bindPopup("<h3>Room S-11</h3>");
-
-// Room S-10
-const s10 = L.polygon([
-    [328.5, 664],
-    [326.5, 726],
-    [256, 728.5],
-    [258.5, 663.5]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-s10.bindPopup("<h3>Room S-10</h3>");
-
-// Room S-9
-const s9 = L.polygon([
-    [326.5, 726],
-    [331, 794],
-    [275.5, 796],
-    [275.5, 730.5]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-s9.bindPopup("<h3>Room S-9</h3>");
-
-// Room S-8
-const s8 = L.polygon([
-    [331, 794],
-    [328.5, 860],
-    [275.5, 861.5],
-    [275.5, 796]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-s8.bindPopup("<h3>Room S-8</h3>");
-
-// Stairs
-const stairs = L.polygon([
-    [270.5, 759],
-    [273, 812],
-    [202, 812.5],
-    [203.5, 759]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-stairs.bindPopup("<h3>Stairs</h3>");
-
-// Fire Exit
-const fireExit4 = L.polygon([
-    [273, 812],
-    [273, 860],
-    [203.5, 861],
-    [202, 812.5]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-fireExit4.bindPopup("<h3>Fire Exit</h3>");
-
-// Lift 2
-const lift2 = L.polygon([
-    [195, 728.5],
-    [195.5, 765],
-    [164, 766],
-    [168, 731.5]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-lift2.bindPopup("<h3>Lift 2</h3>");
-
-// Lift 1
-const lift1 = L.polygon([
-    [195.5, 765],
-    [196.5, 809],
-    [165, 809],
-    [164, 766]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-lift1.bindPopup("<h3>Lift 1</h3>");
-
-// Lift Lobby
-const liftLobby2 = L.polygon([
-    [159, 726.5],
-    [165, 809],
-    [122, 807.5],
-    [122, 726]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-liftLobby2.bindPopup("<h3>Lift Lobby</h3>");
-
-// Lift 4
-const lift4 = L.polygon([
-    [122, 726],
-    [119.5, 767.5],
-    [78.5, 767.5],
-    [78, 727.5]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-lift4.bindPopup("<h3>Lift 4</h3>");
-
-// Lift 3
-const lift3 = L.polygon([
-    [119.5, 767.5],
-    [122, 807.5],
-    [78, 806.5],
-    [78.5, 767.5]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-lift3.bindPopup("<h3>Lift 3</h3>");
-
-// Rooms S-07 & S-06
-const s07_06 = L.polygon([
-    [150.613744, 854.184992],
-    [151.5, 914],
-    [198.5, 915],
-    [198.5, 975],
-    [69.5, 975],
-    [71, 852]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-s07_06.bindPopup("<h3>Rooms S-07 & S-06</h3>");
-
-// Room S-05
-const s05 = L.polygon([
-    [198.5, 975],
-    [197.5, 1030.5],
-    [69.5, 1030.5],
-    [69.5, 975]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-s05.bindPopup("<h3>Room S-05</h3>");
-
-// Rooms S-04 & S-03
-const s04_03 = L.polygon([
-    [197.5, 1030.5],
-    [199.5, 1086.5],
-    [269.5, 1087.5],
-    [269.5, 1210.5],
-    [70, 1210],
-    [69.5, 1030.5]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-s04_03.bindPopup("<h3>Rooms S-04 & S-03</h3>");
-
-// Room S-02
-const s02 = L.polygon([
-    [269.5, 1087.5],
-    [334.5, 1086],
-    [333, 1209],
-    [269.5, 1210.5]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-s02.bindPopup("<h3>Room S-02</h3>");
-
-// Room S-01
-const s01 = L.polygon([
-    [334.5, 1086],
-    [394.5, 1085],
-    [395.5, 1209],
-    [333, 1209]
-], { color: '#cccccc', fillColor: '#cccccc', fillOpacity: 0.1 }).addTo(map);
-s01.bindPopup("<h3>Room S-01</h3>");
-
-
-// 7. Debug tool: click anywhere to get coordinates
-/* map.on("click", function (e) {
-    console.log(e.latlng);
-});
-
-map.on("click", function (e) {
-    alert("Clicked at: " + e.latlng);
-}); */
+fetch(`${API_BASE}/api/map/0`).then(response => { if (!response.ok) throw new Error('Failed to load map data'); return response.json(); }).then(data => { allFeatures = data.features || []; storeLayer = L.geoJSON(data, { pointToLayer: (feature, latlng) => L.circleMarker(latlng, { radius: 8, color: '#655d54', fillColor: '#f7f1e8', fillOpacity: 0.8 }), style: () => ({ color: '#655d54', weight: 1.2, opacity: 0.85, fillColor: '#f7f1e8', fillOpacity: 0.32 }), onEachFeature: (feature, layer) => { featureLayers.set(feature, layer); addFeatureIcon(feature, layer); layer.on({ mouseover: () => { if (layer !== selectedLayer) layer.setStyle({ fillColor: '#e8dfcf', fillOpacity: 0.65, weight: 1.8 }); }, mouseout: () => { if (layer !== selectedLayer) resetLayerStyle(layer); }, click: () => selectFeature(feature, layer) }); } }).addTo(map); loadLocalStores(); if (activeCategory) filterFeatures(activeCategory); }).catch(error => console.error('Map data could not be loaded:', error));

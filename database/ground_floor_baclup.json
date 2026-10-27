@@ -1,0 +1,1841 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "S33-37",
+        "name": "S 33-37",
+        "type": "shop",
+        "floor": "ground",
+        "category": "retail",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              209.657,
+              973.765
+            ],
+            [
+              541.997,
+              973.765
+            ],
+            [
+              541.997,
+              940.36
+            ],
+            [
+              504.874,
+              940.36
+            ],
+            [
+              504.874,
+              803.273
+            ],
+            [
+              209.657,
+              803.273
+            ],
+            [
+              209.657,
+              973.765
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "S31-32",
+        "name": "S 31-32",
+        "type": "shop",
+        "floor": "ground",
+        "category": "retail",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              541.997,
+              973.765
+            ],
+            [
+              689.284,
+              973.765
+            ],
+            [
+              689.284,
+              796.03
+            ],
+            [
+              590.985,
+              796.03
+            ],
+            [
+              590.985,
+              940.36
+            ],
+            [
+              541.997,
+              940.36
+            ],
+            [
+              541.997,
+              973.765
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "female-toilet",
+        "name": "Female Toilet",
+        "type": "facility",
+        "floor": "ground",
+        "category": "toilet",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              590.985,
+              796.03
+            ],
+            [
+              689.284,
+              796.03
+            ],
+            [
+              689.284,
+              723.857
+            ],
+            [
+              590.985,
+              723.857
+            ],
+            [
+              590.985,
+              796.03
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "male-toilet",
+        "name": "Male Toilet",
+        "type": "facility",
+        "floor": "ground",
+        "category": "toilet",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              590.985,
+              723.857
+            ],
+            [
+              661.299,
+              723.857
+            ],
+            [
+              661.299,
+              664.345
+            ],
+            [
+              590.985,
+              664.345
+            ],
+            [
+              590.985,
+              723.857
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "S-30",
+        "name": "S-30",
+        "type": "shop",
+        "floor": "ground",
+        "category": "retail",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              661.299,
+              723.857
+            ],
+            [
+              728.685,
+              723.857
+            ],
+            [
+              728.685,
+              664.345
+            ],
+            [
+              661.299,
+              664.345
+            ],
+            [
+              661.299,
+              723.857
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "S-29",
+        "name": "S-29",
+        "type": "shop",
+        "floor": "ground",
+        "category": "retail",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              728.685,
+              723.857
+            ],
+            [
+              794.565,
+              723.857
+            ],
+            [
+              794.565,
+              664.345
+            ],
+            [
+              728.685,
+              664.345
+            ],
+            [
+              728.685,
+              723.857
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "S-28",
+        "name": "S-28",
+        "type": "shop",
+        "floor": "ground",
+        "category": "retail",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              794.565,
+              723.857
+            ],
+            [
+              866.206,
+              664.345
+            ],
+            [
+              794.565,
+              664.345
+            ],
+            [
+              794.565,
+              723.857
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fire-exit-1",
+        "name": "Fire Exit",
+        "type": "facility",
+        "floor": "ground",
+        "category": "fire-exit",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            866.206,
+            664.345
+          ],
+          [
+            881.5,
+            664.345
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "lift",
+        "name": "Lift",
+        "type": "facility",
+        "floor": "ground",
+        "category": "lift",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              392.75,
+              789.5
+            ],
+            [
+              447.917,
+              789.5
+            ],
+            [
+              447.917,
+              723.857
+            ],
+            [
+              392.75,
+              723.857
+            ],
+            [
+              392.75,
+              789.5
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fire-exit-2",
+        "name": "Fire Exit",
+        "type": "facility",
+        "floor": "ground",
+        "category": "fire-exit",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              447.917,
+              796.03
+            ],
+            [
+              483.25,
+              796.03
+            ],
+            [
+              483.25,
+              723.857
+            ],
+            [
+              447.917,
+              723.857
+            ],
+            [
+              447.917,
+              796.03
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "lift-lobby-1",
+        "name": "Lift Lobby",
+        "type": "facility",
+        "floor": "ground",
+        "category": "lobby",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              392.75,
+              723.857
+            ],
+            [
+              447.917,
+              723.857
+            ],
+            [
+              447.917,
+              678.667
+            ],
+            [
+              392.75,
+              678.667
+            ],
+            [
+              392.75,
+              723.857
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "goods-lift",
+        "name": "Goods Lift",
+        "type": "facility",
+        "floor": "ground",
+        "category": "lift",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              392.75,
+              678.667
+            ],
+            [
+              497.912,
+              678.667
+            ],
+            [
+              497.912,
+              630.189
+            ],
+            [
+              392.75,
+              630.189
+            ],
+            [
+              392.75,
+              678.667
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fire-exit-3",
+        "name": "Fire Exit",
+        "type": "facility",
+        "floor": "ground",
+        "category": "fire-exit",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              497.912,
+              678.667
+            ],
+            [
+              527.5,
+              678.667
+            ],
+            [
+              527.5,
+              612.484
+            ],
+            [
+              497.912,
+              612.484
+            ],
+            [
+              497.912,
+              678.667
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "S-27",
+        "name": "S-27",
+        "type": "shop",
+        "floor": "ground",
+        "category": "retail",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              590.985,
+              612.484
+            ],
+            [
+              661.299,
+              612.484
+            ],
+            [
+              661.299,
+              565.626
+            ],
+            [
+              590.985,
+              565.626
+            ],
+            [
+              590.985,
+              612.484
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "S-26",
+        "name": "S-26",
+        "type": "shop",
+        "floor": "ground",
+        "category": "retail",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              661.299,
+              612.484
+            ],
+            [
+              728.685,
+              612.484
+            ],
+            [
+              728.685,
+              565.626
+            ],
+            [
+              661.299,
+              565.626
+            ],
+            [
+              661.299,
+              612.484
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "S-25",
+        "name": "S-25",
+        "type": "shop",
+        "floor": "ground",
+        "category": "retail",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              728.685,
+              612.484
+            ],
+            [
+              794.565,
+              612.484
+            ],
+            [
+              794.565,
+              565.626
+            ],
+            [
+              728.685,
+              565.626
+            ],
+            [
+              728.685,
+              612.484
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "S-24",
+        "name": "S-24",
+        "type": "shop",
+        "floor": "ground",
+        "category": "retail",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              794.565,
+              612.484
+            ],
+            [
+              860.026,
+              612.484
+            ],
+            [
+              860.026,
+              565.626
+            ],
+            [
+              794.565,
+              565.626
+            ],
+            [
+              794.565,
+              612.484
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "S-23",
+        "name": "S-23",
+        "type": "shop",
+        "floor": "ground",
+        "category": "retail",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              905.729,
+              630.189
+            ],
+            [
+              973.222,
+              583.01
+            ],
+            [
+              973.222,
+              573.11
+            ],
+            [
+              905.729,
+              573.11
+            ],
+            [
+              905.729,
+              630.189
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "S-22",
+        "name": "S-22",
+        "type": "shop",
+        "floor": "ground",
+        "category": "retail",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              973.222,
+              583.01
+            ],
+            [
+              1077.984,
+              503.548
+            ],
+            [
+              973.222,
+              503.548
+            ],
+            [
+              973.222,
+              583.01
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "S-21",
+        "name": "S-21",
+        "type": "shop",
+        "floor": "ground",
+        "category": "retail",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              905.729,
+              565.626
+            ],
+            [
+              973.222,
+              565.626
+            ],
+            [
+              973.222,
+              503.548
+            ],
+            [
+              905.729,
+              503.548
+            ],
+            [
+              905.729,
+              565.626
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "S-20",
+        "name": "S-20",
+        "type": "shop",
+        "floor": "ground",
+        "category": "retail",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              794.565,
+              513.188
+            ],
+            [
+              860.026,
+              513.188
+            ],
+            [
+              860.026,
+              451.98
+            ],
+            [
+              794.565,
+              451.98
+            ],
+            [
+              794.565,
+              513.188
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "S-19",
+        "name": "S-19",
+        "type": "shop",
+        "floor": "ground",
+        "category": "retail",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              728.685,
+              513.188
+            ],
+            [
+              794.565,
+              513.188
+            ],
+            [
+              794.565,
+              451.98
+            ],
+            [
+              728.685,
+              451.98
+            ],
+            [
+              728.685,
+              513.188
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "S-13",
+        "name": "S-13",
+        "type": "shop",
+        "floor": "ground",
+        "category": "retail",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              794.565,
+              451.98
+            ],
+            [
+              860.026,
+              451.98
+            ],
+            [
+              860.026,
+              378.938
+            ],
+            [
+              794.565,
+              378.938
+            ],
+            [
+              794.565,
+              451.98
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "S-18",
+        "name": "S-18",
+        "type": "shop",
+        "floor": "ground",
+        "category": "retail",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              661.299,
+              513.188
+            ],
+            [
+              728.685,
+              513.188
+            ],
+            [
+              728.685,
+              451.98
+            ],
+            [
+              661.299,
+              451.98
+            ],
+            [
+              661.299,
+              513.188
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "S-14",
+        "name": "S-14",
+        "type": "shop",
+        "floor": "ground",
+        "category": "retail",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              728.685,
+              451.98
+            ],
+            [
+              794.565,
+              451.98
+            ],
+            [
+              794.565,
+              378.938
+            ],
+            [
+              728.685,
+              378.938
+            ],
+            [
+              728.685,
+              451.98
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "S-15",
+        "name": "S-15",
+        "type": "shop",
+        "floor": "ground",
+        "category": "retail",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              661.299,
+              451.98
+            ],
+            [
+              728.685,
+              451.98
+            ],
+            [
+              728.685,
+              378.938
+            ],
+            [
+              661.299,
+              378.938
+            ],
+            [
+              661.299,
+              451.98
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "S-17",
+        "name": "S-17",
+        "type": "shop",
+        "floor": "ground",
+        "category": "retail",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              590.985,
+              513.188
+            ],
+            [
+              661.299,
+              513.188
+            ],
+            [
+              661.299,
+              451.98
+            ],
+            [
+              590.985,
+              451.98
+            ],
+            [
+              590.985,
+              513.188
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "S-16",
+        "name": "S-16",
+        "type": "shop",
+        "floor": "ground",
+        "category": "retail",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              590.985,
+              451.98
+            ],
+            [
+              661.299,
+              451.98
+            ],
+            [
+              661.299,
+              378.938
+            ],
+            [
+              590.985,
+              378.938
+            ],
+            [
+              590.985,
+              451.98
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "escalator-left",
+        "name": "Escalator (Left) - Down",
+        "type": "facility",
+        "floor": "ground",
+        "category": "escalator",
+        "direction": "down",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              905.729,
+              435.125
+            ],
+            [
+              948.75,
+              435.125
+            ],
+            [
+              948.75,
+              256.55
+            ],
+            [
+              905.729,
+              256.55
+            ],
+            [
+              905.729,
+              435.125
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "escalator-right",
+        "name": "Escalator (Right) - Up",
+        "type": "facility",
+        "floor": "ground",
+        "category": "escalator",
+        "direction": "up",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              998,
+              435.125
+            ],
+            [
+              1043,
+              435.125
+            ],
+            [
+              1043,
+              256.55
+            ],
+            [
+              998,
+              256.55
+            ],
+            [
+              998,
+              435.125
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "corner-shop",
+        "name": "Corner Shop",
+        "type": "shop",
+        "floor": "ground",
+        "category": "retail",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              1095.662,
+              451.98
+            ],
+            [
+              1134.199,
+              451.98
+            ],
+            [
+              1134.199,
+              397.258
+            ],
+            [
+              1095.662,
+              397.258
+            ],
+            [
+              1095.662,
+              451.98
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "S-12",
+        "name": "S-12",
+        "type": "shop",
+        "floor": "ground",
+        "category": "retail",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              527.5,
+              330.214
+            ],
+            [
+              590.985,
+              330.214
+            ],
+            [
+              590.985,
+              256.55
+            ],
+            [
+              527.5,
+              256.55
+            ],
+            [
+              527.5,
+              330.214
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "S-11",
+        "name": "S-11",
+        "type": "shop",
+        "floor": "ground",
+        "category": "retail",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              590.985,
+              330.214
+            ],
+            [
+              661.299,
+              330.214
+            ],
+            [
+              661.299,
+              256.55
+            ],
+            [
+              590.985,
+              256.55
+            ],
+            [
+              590.985,
+              330.214
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "S-10",
+        "name": "S-10",
+        "type": "shop",
+        "floor": "ground",
+        "category": "retail",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              661.299,
+              330.214
+            ],
+            [
+              728.685,
+              330.214
+            ],
+            [
+              728.685,
+              256.55
+            ],
+            [
+              661.299,
+              256.55
+            ],
+            [
+              661.299,
+              330.214
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "S-9",
+        "name": "S-9",
+        "type": "shop",
+        "floor": "ground",
+        "category": "retail",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              728.685,
+              330.214
+            ],
+            [
+              794.565,
+              330.214
+            ],
+            [
+              794.565,
+              272.458
+            ],
+            [
+              728.685,
+              272.458
+            ],
+            [
+              728.685,
+              330.214
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "S-8",
+        "name": "S-8",
+        "type": "shop",
+        "floor": "ground",
+        "category": "retail",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              794.565,
+              330.214
+            ],
+            [
+              860.026,
+              330.214
+            ],
+            [
+              860.026,
+              272.458
+            ],
+            [
+              794.565,
+              272.458
+            ],
+            [
+              794.565,
+              330.214
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "stairs",
+        "name": "Stairs",
+        "type": "facility",
+        "floor": "ground",
+        "category": "stairs",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              759,
+              272.458
+            ],
+            [
+              809.75,
+              272.458
+            ],
+            [
+              809.75,
+              198.821
+            ],
+            [
+              759,
+              198.821
+            ],
+            [
+              759,
+              272.458
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fire-exit-4",
+        "name": "Fire Exit",
+        "type": "facility",
+        "floor": "ground",
+        "category": "fire-exit",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              809.75,
+              272.458
+            ],
+            [
+              860.026,
+              272.458
+            ],
+            [
+              860.026,
+              198.821
+            ],
+            [
+              809.75,
+              198.821
+            ],
+            [
+              809.75,
+              272.458
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "lift-2",
+        "name": "Lift 2",
+        "type": "facility",
+        "floor": "ground",
+        "category": "lift",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              728.685,
+              198.821
+            ],
+            [
+              765,
+              198.821
+            ],
+            [
+              765,
+              164.167
+            ],
+            [
+              728.685,
+              164.167
+            ],
+            [
+              728.685,
+              198.821
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "lift-1",
+        "name": "Lift 1",
+        "type": "facility",
+        "floor": "ground",
+        "category": "lift",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              765,
+              198.821
+            ],
+            [
+              809.75,
+              198.821
+            ],
+            [
+              809.75,
+              164.167
+            ],
+            [
+              765,
+              164.167
+            ],
+            [
+              765,
+              198.821
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "lift-lobby-2",
+        "name": "Lift Lobby",
+        "type": "facility",
+        "floor": "ground",
+        "category": "lobby",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              728.685,
+              164.167
+            ],
+            [
+              809.75,
+              164.167
+            ],
+            [
+              809.75,
+              121.167
+            ],
+            [
+              728.685,
+              121.167
+            ],
+            [
+              728.685,
+              164.167
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "lift-4",
+        "name": "Lift 4",
+        "type": "facility",
+        "floor": "ground",
+        "category": "lift",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              728.685,
+              121.167
+            ],
+            [
+              765,
+              121.167
+            ],
+            [
+              765,
+              78.25
+            ],
+            [
+              728.685,
+              78.25
+            ],
+            [
+              728.685,
+              121.167
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "lift-3",
+        "name": "Lift 3",
+        "type": "facility",
+        "floor": "ground",
+        "category": "lift",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              765,
+              121.167
+            ],
+            [
+              809.75,
+              121.167
+            ],
+            [
+              809.75,
+              78.25
+            ],
+            [
+              765,
+              78.25
+            ],
+            [
+              765,
+              121.167
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "S-07-06",
+        "name": "S-07 & S-06",
+        "type": "shop",
+        "floor": "ground",
+        "category": "retail",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              860.026,
+              151.057
+            ],
+            [
+              914.5,
+              151.057
+            ],
+            [
+              914.5,
+              198.821
+            ],
+            [
+              973.222,
+              198.821
+            ],
+            [
+              973.222,
+              69.833
+            ],
+            [
+              852,
+              69.833
+            ],
+            [
+              860.026,
+              151.057
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "S-05",
+        "name": "S-05",
+        "type": "shop",
+        "floor": "ground",
+        "category": "retail",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              973.222,
+              198.821
+            ],
+            [
+              1030.5,
+              198.821
+            ],
+            [
+              1030.5,
+              69.833
+            ],
+            [
+              973.222,
+              69.833
+            ],
+            [
+              973.222,
+              198.821
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "S-04-03",
+        "name": "S-04 & S-03",
+        "type": "shop",
+        "floor": "ground",
+        "category": "retail",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              1030.5,
+              198.821
+            ],
+            [
+              1086.417,
+              198.821
+            ],
+            [
+              1086.417,
+              272.458
+            ],
+            [
+              1209.667,
+              272.458
+            ],
+            [
+              1209.667,
+              69.833
+            ],
+            [
+              1030.5,
+              69.833
+            ],
+            [
+              1030.5,
+              198.821
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "S-02",
+        "name": "S-02",
+        "type": "shop",
+        "floor": "ground",
+        "category": "retail",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              1086.417,
+              272.458
+            ],
+            [
+              1086.417,
+              330.214
+            ],
+            [
+              1209.667,
+              330.214
+            ],
+            [
+              1209.667,
+              272.458
+            ],
+            [
+              1086.417,
+              272.458
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "S-01",
+        "name": "S-01",
+        "type": "shop",
+        "floor": "ground",
+        "category": "retail",
+        "status": "active"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              1086.417,
+              330.214
+            ],
+            [
+              1086.417,
+              397.258
+            ],
+            [
+              1209.667,
+              397.258
+            ],
+            [
+              1209.667,
+              330.214
+            ],
+            [
+              1086.417,
+              330.214
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

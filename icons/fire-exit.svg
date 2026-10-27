@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 62 62" role="img" aria-label="Fire exit">
+  <circle cx="31" cy="31" r="29" fill="#eae2d3"/>
+  <path d="M31 13v28M31 13l-8 8M31 13l8 8M18 45h26" fill="none" stroke="#555" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M18 45v-8h26v8" fill="none" stroke="#555" stroke-width="3" stroke-linejoin="round"/>
+</svg>
