@@ -2,40 +2,63 @@
 # Hey everyone! the following are the changes i brought in the frontend.
 # BALI - ARCADE front-end Notes :)
 
-## Run Locally
+## Run the Entire Program
 
-From the project folder:
+Requirements: Node.js 16 or newer, PostgreSQL, and the PostgreSQL command-line tools (`psql`). PostgreSQL must be running locally on port `5432`.
+
+**Before sharing:** these role-login steps require `database/auth.sql`, `database/seed_admin.js`, and the corresponding auth routes and login UI to be included in the shared checkout. They are present in the local version this guide describes but are not yet present in the current shared workspace. The base SQL backup alone does not configure application roles.
+
+From the project folder, install dependencies:
 
 ```powershell
 npm install
-node server-pg.js
 ```
 
-Open http://localhost:3000.
-
-## PostgreSQL Setup
-
-PostgreSQL must be running locally on port `5432`.
-
-The current database settings are in `server-pg.js`:
-
-- User: `postgres`
-- Database: `bali_arcade`
-- Host: `localhost`
-- Port: `5432`
-
-Create the database schema once:
+Create the database if it does not already exist, then restore the project backup and apply the authentication tables/roles:
 
 ```powershell
-$env:PGPASSWORD = "123"
-psql -h localhost -U postgres -d bali_arcade -f database/schema.sql
+psql -U postgres -c "CREATE DATABASE bali_arcade;"
+psql -h localhost -U postgres -d bali_arcade -f database/bali_arcade.sql
+psql -h localhost -U postgres -d bali_arcade -f database/auth.sql
 ```
 
-Import the GeoJSON stores:
+If the database already exists, skip the `CREATE DATABASE` command. The restore command is for a fresh database. Enter your PostgreSQL password when prompted. Ensure the connection settings in `server-pg.js` match your local PostgreSQL configuration.
+
+Import or refresh the store data:
 
 ```powershell
 node import_data.js
 ```
+
+Create a `.env` file in the project root. `.env` is ignored by Git; each teammate should use their own secret values:
+
+```dotenv
+JWT_SECRET=replace-with-a-long-random-secret
+JWT_EXPIRES_IN=8h
+ADMIN_USERNAME=choose-an-admin-username
+ADMIN_PASSWORD=choose-a-strong-admin-password
+```
+
+The admin seed script uses `DB_USER`, `DB_HOST`, `DB_NAME`, `DB_PASSWORD`, and `DB_PORT` from `.env` if set; otherwise it uses its built-in local defaults. Set these to match the database connection used by `server-pg.js`, and do not commit `.env` or share passwords in this README.
+
+Create or reset the admin account from the `.env` values, then start the server:
+
+```powershell
+node database/seed_admin.js
+node server-pg.js
+```
+
+Keep the server terminal open and browse to [http://localhost:3000](http://localhost:3000). A successful startup reports that PostgreSQL is connected.
+
+## Admin and Shopkeeper Login
+
+The current local seeded admin email is `admin@admin.local`. Sign in with username `admin`; the email address is not the login name. The password is the private `ADMIN_PASSWORD` value in the local `.env` file and is intentionally not written here. To reset it, update `ADMIN_PASSWORD` in `.env` and rerun `node database/seed_admin.js`.
+
+1. In the app, select **Login** and enter `ADMIN_USERNAME` and `ADMIN_PASSWORD` from your local `.env` to sign in as the admin.
+2. Open **Manage shopkeepers**, create a username and password for each shopkeeper, and assign that account its store IDs. Shopkeeper passwords must be at least 8 characters.
+3. Shopkeepers use the same **Login** form with the username and password created by the admin. Their access is limited to stores assigned to their account.
+
+The app supports the `admin` and `shopkeeper` roles. Share account credentials with teammates through a secure channel, not through Git or this README. Do not copy the PostgreSQL password into the application login form.
 
 
 ## Frontend Files
@@ -66,7 +89,19 @@ Do not change map coordinates, image bounds, GeoJSON geometry, or floor numberin
 - `GET /api/search?q=keyword`: database search.
 - `GET /api/categories`: category counts.
 - `GET /api/stats`: database statistics.
+- `POST /api/auth/login`: sign in and receive an access token and role.
+- `GET /api/auth/me`, `PUT /api/auth/me`: read or update the signed-in user's profile.
+- `POST /api/admin/users`, `GET /api/admin/users`, `PUT /api/admin/users/:id`, `DELETE /api/admin/users/:id`: admin-only shopkeeper management.
+- `PUT /api/stores/:id`: authenticated store update, restricted to the admin or an assigned shopkeeper.
 
+## Login and Roles
+
+- Viewing the map does not require an application login.
+- The frontend's add-store flow is wired to request an administrator password from `POST /api/admin/login` and expects a token in response.
+- That login route is not implemented in `server-pg.js`, so administrator login and token-based access are not currently available.
+- There are no application roles, role-specific accounts, or application login credentials configured in the database. The PostgreSQL credentials are database connection settings, not map login credentials.
+
+Do not treat the current admin dialog as access control. Implement the login endpoint and server-side authorization for protected actions before using role-based access or publishing the app.
 
 
 ## Quick Checks
