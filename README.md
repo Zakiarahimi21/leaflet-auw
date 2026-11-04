@@ -91,3 +91,33 @@ git add database/bali_arcade.sql
 git commit -m "Update database backup with latest stores"
 git push
 ```
+
+## Authentication Setup
+
+```bash
+npm install
+```
+
+Set the JWT settings in `.env`:
+
+```text
+JWT_SECRET=<long random string>
+JWT_EXPIRES_IN=8h
+```
+
+Apply the authentication schema and create the first administrator:
+
+```bash
+psql -U postgres -d bali_arcade -f database/auth.sql
+node database/seed_admin.js
+```
+
+`seed_admin.js` reads `ADMIN_USERNAME` and `ADMIN_PASSWORD` from `.env`, or accepts `--username` and `--password` command-line arguments.
+
+For example:
+
+```bash
+node database/seed_admin.js --username admin --password "change-this-password"
+```
+
+Then log in through the map's **Login** button. Admin accounts also see **Manage users**, where shopkeeper accounts can be created, assigned stores, updated, listed, and deleted. Passwords are stored only as bcrypt hashes and are never returned by the API.

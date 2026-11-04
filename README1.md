@@ -104,6 +104,60 @@ Do not change map coordinates, image bounds, GeoJSON geometry, or floor numberin
 Do not treat the current admin dialog as access control. Implement the login endpoint and server-side authorization for protected actions before using role-based access or publishing the app.
 
 
+## Run the Entire Program
+
+Requirements: Node.js 16 or newer, PostgreSQL, and the PostgreSQL command-line tools (`psql`). PostgreSQL must be running locally on port `5432`.
+
+From the project folder, install dependencies:
+
+```powershell
+npm install
+```
+
+For a fresh local database, create and restore the database, then apply the authentication schema:
+
+```powershell
+psql -U postgres -c "CREATE DATABASE bali_arcade;"
+psql -h localhost -U postgres -d bali_arcade -f database/bali_arcade.sql
+psql -h localhost -U postgres -d bali_arcade -f database/auth.sql
+```
+
+If the database already exists, skip the create command. The restore command is for a fresh database. Enter your PostgreSQL password when prompted. Keep the database connection settings in `server-pg.js` and `database/seed_admin.js` configured for the same local PostgreSQL account.
+
+Import or refresh the store data:
+
+```powershell
+node import_data.js
+```
+
+Create a `.env` file in the project root. `.env` is ignored by Git; each teammate should use private values:
+
+```dotenv
+JWT_SECRET=replace-with-a-long-random-secret
+JWT_EXPIRES_IN=8h
+ADMIN_USERNAME=choose-an-admin-username
+ADMIN_PASSWORD=choose-a-strong-admin-password
+```
+
+Create or reset the admin account from the `.env` values, then start the server:
+
+```powershell
+node database/seed_admin.js
+node server-pg.js
+```
+
+Keep the server terminal open and browse to [http://localhost:3000](http://localhost:3000). A successful startup reports that PostgreSQL is connected.
+
+## Admin and Shopkeeper Login
+
+The current local seeded admin uses username `admin` and email `admin@admin.local`. Sign in with the username, not the email. The password is the private `ADMIN_PASSWORD` value in the local `.env` file and is intentionally not written here. To reset it, update `ADMIN_PASSWORD` in `.env` and rerun `node database/seed_admin.js`.
+
+1. Select **Login** in the app and enter the admin username and password.
+2. As admin, open **Manage shopkeepers**, create each shopkeeper's username and password, and assign that account its store IDs. Shopkeeper passwords must be at least 8 characters.
+3. Shopkeepers use the same **Login** form with the credentials created by the admin. Their access is limited to stores assigned to their account.
+
+The app supports the `admin` and `shopkeeper` roles. Share credentials through a secure channel, not through Git or this README. Do not use the PostgreSQL password as an application login password.
+
 ## Quick Checks
 
 ```powershell
