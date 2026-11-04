@@ -7,7 +7,6 @@ AUW internship project mapping spaces in Bangladesh. An interactive indoor mall 
 ##  Quick Setup Guide 
 
 Follow these steps to run the project on your local computer.
-
 ### 1. Prerequisites
 Make sure you have installed:
 - [Node.js](https://nodejs.org/) (v16 or higher)
