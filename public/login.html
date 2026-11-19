@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <title>Sign in | BALI - ARCADE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/auth.css">
+</head>
+<body>
+<div class="auth-page">
+    <aside class="auth-aside">
+        <a class="brand" href="/"><span class="brand-pin" aria-hidden="true">●</span><span>BALI - ARCADE</span></a>
+        <div>
+            <h1>Every shop, one clear map.</h1>
+            <p>Sign in to manage your shop, follow the deals you care about, or look after the whole mall.</p>
+            <ul class="auth-points">
+                <li><b>⌑</b><div>Visitors<span>Save favourite shops and spot running offers.</span></div></li>
+                <li><b>▢</b><div>Shopkeepers<span>Update opening hours, photos and promotions yourself.</span></div></li>
+                <li><b>⚙</b><div>Administrators<span>Verify shops, manage accounts and review activity.</span></div></li>
+            </ul>
+        </div>
+        <div class="auth-foot">AUW internship project · Indoor mall mapping</div>
+    </aside>
+
+    <main class="auth-main">
+        <div class="auth-card">
+            <div class="auth-top"><a href="/">← Back to the map</a></div>
+
+            <div class="tabs" role="tablist" aria-label="Account">
+                <button type="button" role="tab" id="tab-login" aria-selected="true" aria-controls="panel-login">Sign in</button>
+                <button type="button" role="tab" id="tab-signup" aria-selected="false" aria-controls="panel-signup">Create account</button>
+            </div>
+
+            <!-- SIGN IN -->
+            <section id="panel-login" role="tabpanel" aria-labelledby="tab-login">
+                <h2>Welcome back</h2>
+                <p class="auth-sub">Visitors, shopkeepers and administrators sign in here.</p>
+                <form class="auth-form" id="login-form" novalidate>
+                    <div class="alert alert-error" id="login-error" role="alert" hidden></div>
+                    <label class="field">Username or email
+                        <input id="login-identifier" name="identifier" autocomplete="username" autocapitalize="none" spellcheck="false" required maxlength="100">
+                    </label>
+                    <label class="field">Password
+                        <span class="pw-wrap">
+                            <input id="login-password" name="password" type="password" autocomplete="current-password" required maxlength="128">
+                            <button class="pw-toggle" type="button" data-toggle="login-password" aria-label="Show password">Show</button>
+                        </span>
+                        <span class="caps-note" id="caps-note" hidden>Caps Lock is on</span>
+                    </label>
+                    <button class="btn btn-block" id="login-submit" type="submit">Sign in</button>
+                </form>
+                <p class="auth-note">Administrator accounts are created by the mall's technical team and cannot be registered here.</p>
+            </section>
+
+            <!-- SIGN UP -->
+            <section id="panel-signup" role="tabpanel" aria-labelledby="tab-signup" hidden>
+                <h2>Create your account</h2>
+                <p class="auth-sub">Choose how you will use BALI - ARCADE.</p>
+                <form class="auth-form" id="signup-form" novalidate>
+                    <div class="alert alert-error" id="signup-error" role="alert" hidden></div>
+                    <fieldset class="role-pick" style="border:0;padding:0;margin:0">
+                        <legend class="sr-only">Account type</legend>
+                        <label><input type="radio" name="role" value="visitor" checked><strong>Visitor</strong><span>Browse, save shops, see deals</span></label>
+                        <label><input type="radio" name="role" value="shopkeeper"><strong>Shopkeeper</strong><span>Manage my shop in the mall</span></label>
+                    </fieldset>
+                    <label class="field">Full name<input name="fullName" autocomplete="name" required maxlength="100"></label>
+                    <div class="field-row">
+                        <label class="field">Username<input name="username" autocomplete="username" autocapitalize="none" required minlength="3" maxlength="30"></label>
+                        <label class="field">Phone <span class="hint">(optional)</span><input name="phone" type="tel" autocomplete="tel" maxlength="30"></label>
+                    </div>
+                    <label class="field">Email<input name="email" type="email" autocomplete="email" required maxlength="100"></label>
+                    <label class="field" id="shop-field" hidden>Your shop
+                        <select name="storeNumber" id="shop-select"><option value="">Loading shops…</option></select>
+                        <span class="hint">An administrator will verify that you operate this shop before you can edit it.</span>
+                    </label>
+                    <label class="field">Password
+                        <span class="pw-wrap">
+                            <input id="signup-password" name="password" type="password" autocomplete="new-password" required maxlength="72">
+                            <button class="pw-toggle" type="button" data-toggle="signup-password" aria-label="Show password">Show</button>
+                        </span>
+                        <span class="meter" id="signup-meter" data-level="0"><span></span><span></span><span></span><span></span></span>
+                        <ul class="rules" id="signup-rules"></ul>
+                    </label>
+                    <label class="field">Confirm password<input id="signup-confirm" name="confirm" type="password" autocomplete="new-password" required maxlength="72"></label>
+                    <button class="btn btn-block" id="signup-submit" type="submit">Create account</button>
+                </form>
+                <p class="auth-note">Passwords are stored as salted bcrypt hashes. We never see or store your actual password.</p>
+            </section>
+        </div>
+    </main>
+</div>
+<script src="js/api.js"></script>
+<script src="js/login.js"></script>
+</body>
+</html>

@@ -1,3 +1,5 @@
+> **Note:** these are older front-end notes. The current setup, login and dashboard instructions are in [README.md](README.md).
+
 
 # Hey everyone! the following are the changes i brought in the frontend.
 # BALI - ARCADE front-end Notes :)

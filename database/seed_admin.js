@@ -1,52 +1,46 @@
+// Creates (or resets) the one administrator account. Admins can NOT sign up on the website.
+//   node database/seed_admin.js --username admin --email you@example.com --password "Str0ng!Passw0rd"
+// or set ADMIN_USERNAME / ADMIN_EMAIL / ADMIN_PASSWORD in .env
 const bcrypt = require('bcryptjs');
 const { Client } = require('pg');
-require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
+const config = require('../src/config');
+const { validatePassword, validateUsername, validateEmail } = require('../src/validators');
 
 function readArg(name) {
-    const equalsPrefix = `--${name}=`;
-    const equalsArgument = process.argv.find(arg => arg.startsWith(equalsPrefix));
-    if (equalsArgument) return equalsArgument.slice(equalsPrefix.length);
-
-    const argumentIndex = process.argv.indexOf(`--${name}`);
-    return argumentIndex >= 0 ? process.argv[argumentIndex + 1] : null;
+    const prefix = `--${name}=`;
+    const inline = process.argv.find(arg => arg.startsWith(prefix));
+    if (inline) return inline.slice(prefix.length);
+    const index = process.argv.indexOf(`--${name}`);
+    return index >= 0 ? process.argv[index + 1] : null;
 }
 
-async function seedAdmin() {
+(async () => {
     const username = readArg('username') || process.env.ADMIN_USERNAME;
     const password = readArg('password') || process.env.ADMIN_PASSWORD;
-
+    const email = readArg('email') || process.env.ADMIN_EMAIL || `${username}@admin.local`;
     if (!username || !password) {
         console.error('Missing admin credentials. Set ADMIN_USERNAME and ADMIN_PASSWORD in .env or pass --username and --password.');
         process.exit(1);
     }
+    const problem = validateUsername(username) || validateEmail(email) || validatePassword(password, { username, email });
+    if (problem) { console.error('Rejected:', problem); process.exit(1); }
 
-    const client = new Client({
-        user: process.env.DB_USER || 'postgres',
-        host: process.env.DB_HOST || 'localhost',
-        database: process.env.DB_NAME || 'bali_arcade',
-        password: process.env.DB_PASSWORD || '123',
-        port: Number(process.env.DB_PORT || 5432)
-    });
-
+    const client = new Client(config.db);
     try {
         await client.connect();
-        const passwordHash = await bcrypt.hash(password, 10);
+        const hash = await bcrypt.hash(password, config.bcryptRounds);
         await client.query(`
-            INSERT INTO mall.users (username, email, password_hash, role)
-            VALUES ($1, $2, $3, 'admin')
-            ON CONFLICT (username) DO UPDATE SET
-                password_hash = EXCLUDED.password_hash,
-                role = 'admin',
-                updated_at = CURRENT_TIMESTAMP
-        `, [username, `${username}@admin.local`, passwordHash]);
-
-        console.log(`Admin user "${username}" created or updated successfully.`);
+            INSERT INTO mall.users (username, email, password_hash, role, status, full_name, password_changed_at)
+            VALUES ($1, $2, $3, 'admin', 'active', 'Administrator', NOW())
+            ON CONFLICT (lower(username)) DO UPDATE SET
+                password_hash = EXCLUDED.password_hash, role = 'admin', status = 'active',
+                failed_attempts = 0, locked_until = NULL, token_version = mall.users.token_version + 1,
+                password_changed_at = NOW(), updated_at = NOW()`, [username, email, hash]);
+        console.log(`Admin "${username}" is ready. Sign in at /login.html`);
     } catch (error) {
         console.error('Failed to seed admin user:', error.message);
         process.exitCode = 1;
     } finally {
         await client.end();
     }
-}
-
-seedAdmin();
+})();
